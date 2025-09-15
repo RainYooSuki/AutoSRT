@@ -22,10 +22,9 @@ AutoSRT 是一个基于语音识别的自动化字幕生成工具，可将音频
 ## 目录结构
 
 ```
-AncoRim/
-├── ffmpeg/                 # FFmpeg 可执行文件
+AutoSRT/
 ├── models/                 # faster-whisper 模型文件
-│   └── faster-whisper-large-v3-turbo-ct2/
+│   └── your-faster-whisper-model/
 ├── SrtFiles/               # 输入输出文件夹
 │   ├── input/              # 音频输入文件夹
 │   └── output/             # 字幕输出文件夹
