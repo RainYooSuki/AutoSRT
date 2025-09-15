@@ -1,4 +1,4 @@
-# AutoSRT 字幕生成工具
+# AutoSRT🚀
 
 AutoSRT 是一个基于语音识别的自动化字幕生成工具，可将音频内容转换为结构化字幕文件（如 SRT 格式），支持中文繁简转换，提升视频字幕制作效率。
 
@@ -48,7 +48,7 @@ AncoRim/
    pip install -r requirements.txt
    ```
 4. 下载 faster-whisper 模型文件并放置到 [models](./models) 目录
-   例如：Faster-whisper-large-v3(https://huggingface.co/Systran/faster-whisper-large-v3)
+   例如：[Faster-whisper-large-v3](https://huggingface.co/Systran/faster-whisper-large-v3)
 
 ## 使用方法
 
