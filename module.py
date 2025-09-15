@@ -7,11 +7,9 @@ import torch
 import ffmpeg as ff
 import zhconv
 # 全局变量
-ffmpeg_path = './ffmpeg'
 srtallinput = glob.glob('./SrtFiles/input/*')
 srtwavs = glob.glob('./SrtFiles/input/*.wav')
-SRTwhisper_model_path = 'models/faster-whisper-large-v3-turbo-ct2'
-os.environ['FFMPEG_PATH'] = ffmpeg_path
+SRTwhisper_model_path = 'models/your-faster-whisper-model-dir'
 
 
 def audio2wav(audio):
@@ -84,3 +82,4 @@ def process_audio(index, wav, total_count, whisper_model, model_lock):
     except Exception as e:
         print(f"Error processing {wav}: {e}")
         return False
+
