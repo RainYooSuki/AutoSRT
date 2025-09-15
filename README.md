@@ -25,6 +25,8 @@ AutoSRT 是一个基于语音识别的自动化字幕生成工具，可将音频
 AutoSRT/
 ├── models/                 # faster-whisper 模型文件
 │   └── your-faster-whisper-model/
+│               └── model.bin
+│               └── ...
 ├── SrtFiles/               # 输入输出文件夹
 │   ├── input/              # 音频输入文件夹
 │   └── output/             # 字幕输出文件夹
