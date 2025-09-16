@@ -15,10 +15,10 @@ SRTwhisper_model_path = 'models/faster-whisper-large-v3-turbo-ct2'
 
 def device_detect():
     if torch.cuda.is_available():
-        print("检测到可用的GPU，模型将被加载到GPU")
+        print("检测到可用的NVIDIA GPU，模型将被加载到NVIDIA GPU")
         device = "cuda"
     else:
-        print("未检测到可用的GPU，模型将被加载到CPU")
+        print("未检测到可用的NVIDIA GPU，模型将被加载到CPU")
         device = "cpu"
 
     return device
@@ -31,11 +31,11 @@ def audio2wav(audio):
 
 def video2hevc(video_path, device=None):
     """
-    将视频文件转码为HEVC编码格式，支持多种硬件加速方案
+    将视频文件转码为HEVC编码格式,仅选择支持Nvidia的硬件加速
 
     参数:
         video_path (str): 输入视频文件的路径
-        device (str, optional): 指定设备类型，'cuda'、'opencl'、'qsv'或'cpu'。如未指定则自动检测
+        device (str, optional): 指定设备类型，'cuda' or 'cpu'。如未指定则自动检测
     """
     # 如果没有指定设备，则自动检测
     if device is None:
@@ -55,35 +55,6 @@ def video2hevc(video_path, device=None):
             'rc': 'vbr',  # 可变比特率
             'b:v': '0',  # 使用CRF而不是固定比特率
             'cq': 28,  # CQ模式下的质量等级
-            'y': '-y'
-        }
-    elif device == "dml":  # DirectML for AMD/NVIDIA on Windows
-        print("使用AMD GPU硬件加速进行HEVC编码 (AMF)")
-        output_args = {
-            'vcodec': 'hevc_amf',
-            'crf': 28,
-            'quality': 'balanced',  # speed, balanced, quality
-            'rc': 'vbr',  # 速率控制模式
-            'y': '-y'
-        }
-    elif device == "opencl":
-        # AMD GPU通过OpenCL加速 (软件实现，性能有限)
-        print("使用AMD GPU通过OpenCL进行HEVC编码")
-        output_args = {
-            'vcodec': 'libx265',
-            'crf': 28,
-            'preset': 'medium',
-            'opencl_device': '0.0',  # 使用第一个GPU设备
-            'y': '-y'
-        }
-    elif device == "qsv":
-        # Intel Quick Sync Video
-        print("使用Intel GPU硬件加速进行HEVC编码 (Quick Sync Video)")
-        output_args = {
-            'vcodec': 'hevc_qsv',
-            'crf': 28,
-            'preset': 'medium',
-            'load_plugin': 'hevc_hw',  # 加载HEVC硬件插件
             'y': '-y'
         }
     else:
@@ -161,4 +132,5 @@ def process_audio(index, wav, total_count, whisper_model, model_lock):
     except Exception as e:
         print(f"Error processing {wav}: {e}")
         return False
+
 
