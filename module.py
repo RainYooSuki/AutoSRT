@@ -6,15 +6,11 @@ import os
 import torch
 import ffmpeg as ff
 import zhconv
+
 # 全局变量
 srtallinput = glob.glob('./SrtFiles/input/*')
 srtwavs = glob.glob('./SrtFiles/input/*.wav')
-SRTwhisper_model_path = 'models/your-faster-whisper-model-dir'
-
-
-def audio2wav(audio):
-    ff.input(audio).output(f"{os.path.dirname(audio)}/{os.path.basename(audio).split('.')[0]}.wav", y='-y').run()
-    print(f"已将{os.path.basename(audio)}转换为{os.path.basename(audio).split('.')[0]}.wav")
+SRTwhisper_model_path = 'models/faster-whisper-large-v3-turbo-ct2'
 
 
 def device_detect():
@@ -26,6 +22,65 @@ def device_detect():
         device = "cpu"
 
     return device
+
+
+def audio2wav(audio):
+    ff.input(audio).output(f"{os.path.dirname(audio)}/{os.path.splitext(os.path.basename(audio))[0]}.wav", y='-y').run()
+    print(f"已将{os.path.basename(audio)}转换为{os.path.splitext(os.path.basename(audio))[0]}.wav")
+
+
+def video2hevc(video_path, device=None):
+    """
+    将视频文件转码为HEVC编码格式，支持多种硬件加速方案
+
+    参数:
+        video_path (str): 输入视频文件的路径
+        device (str, optional): 指定设备类型，'cuda'、'opencl'、'qsv'或'cpu'。如未指定则自动检测
+    """
+    # 如果没有指定设备，则自动检测
+    if device is None:
+        device = device_detect()
+
+    # 构造输出文件路径：将原文件扩展名替换为.mp4
+    output_path = f"{os.path.splitext(video_path)[0]}.mp4"
+
+    # 构建ffmpeg命令参数
+    output_args = {
+        'crf': 23,
+        'preset': 'medium',
+        'y': '-y'
+    }
+
+    # 根据设备类型添加硬件加速参数
+    if device == "cuda":
+        # NVIDIA GPU加速编码
+        output_args['vcodec'] = 'hevc_nvenc'
+        print("使用NVIDIA GPU硬件加速进行HEVC编码")
+    elif device == "dml":  # DirectML for AMD/NVIDIA on Windows
+        output_args['vcodec'] = 'hevc_amf'
+        print("使用AMD GPU硬件加速进行HEVC编码 (AMF)")
+    elif device == "opencl":
+        # AMD GPU通过OpenCL加速 (软件实现，性能有限)
+        output_args['vcodec'] = 'libx265'
+        output_args['opencl_device'] = '0.0'  # 使用第一个GPU设备
+        print("使用AMD GPU通过OpenCL进行HEVC编码")
+    elif device == "qsv":
+        # Intel Quick Sync Video
+        output_args['vcodec'] = 'hevc_qsv'
+        print("使用Intel GPU硬件加速进行HEVC编码 (Quick Sync Video)")
+    else:
+        # CPU编码使用libx265
+        output_args['vcodec'] = 'libx265'
+        print("使用CPU进行HEVC编码")
+
+    # 使用ffmpeg进行转码
+    try:
+        ff.input(video_path).output(output_path, **output_args).run()
+        print(f"已将{os.path.basename(video_path)}转换为HEVC编码并保存为{os.path.basename(output_path)}")
+        return True
+    except Exception as e:
+        print(f"转码失败: {e}")
+        return False
 
 
 def format_time(seconds):
@@ -54,7 +109,8 @@ def process_audio(index, wav, total_count, whisper_model, model_lock):
                                                       vad_parameters=dict(min_silence_duration_ms=500))
 
         subtitle_file = f"./SrtFiles/output/{os.path.basename(wav).split('.')[0]}-sub-{info.language}.srt"
-        print(f"识别到第{index + 1}项音频：{wavpath},其语言为 '%s' ,本次识别的准确度为 %f" % (info.language, info.language_probability))
+        print(f"识别到第{index + 1}项音频：{wavpath},其语言为 '%s' ,本次识别的准确度为 %f" % (
+            info.language, info.language_probability))
         print('开始转录')
         for segment in segments:
             count_id = segment.id
@@ -82,4 +138,3 @@ def process_audio(index, wav, total_count, whisper_model, model_lock):
     except Exception as e:
         print(f"Error processing {wav}: {e}")
         return False
-
