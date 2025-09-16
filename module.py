@@ -44,34 +44,57 @@ def video2hevc(video_path, device=None):
     # 构造输出文件路径：将原文件扩展名替换为.mp4
     output_path = f"{os.path.splitext(video_path)[0]}.mp4"
 
-    # 构建ffmpeg命令参数
-    output_args = {
-        'crf': 23,
-        'preset': 'medium',
-        'y': '-y'
-    }
-
     # 根据设备类型添加硬件加速参数
     if device == "cuda":
         # NVIDIA GPU加速编码
-        output_args['vcodec'] = 'hevc_nvenc'
         print("使用NVIDIA GPU硬件加速进行HEVC编码")
+        output_args = {
+            'vcodec': 'hevc_nvenc',
+            'crf': 28,
+            'preset': 'p4',  # NVENC预设，p1-p7，数字越大压缩比越高但速度越慢
+            'rc': 'vbr',  # 可变比特率
+            'b:v': '0',  # 使用CRF而不是固定比特率
+            'cq': 28,  # CQ模式下的质量等级
+            'y': '-y'
+        }
     elif device == "dml":  # DirectML for AMD/NVIDIA on Windows
-        output_args['vcodec'] = 'hevc_amf'
         print("使用AMD GPU硬件加速进行HEVC编码 (AMF)")
+        output_args = {
+            'vcodec': 'hevc_amf',
+            'crf': 28,
+            'quality': 'balanced',  # speed, balanced, quality
+            'rc': 'vbr',  # 速率控制模式
+            'y': '-y'
+        }
     elif device == "opencl":
         # AMD GPU通过OpenCL加速 (软件实现，性能有限)
-        output_args['vcodec'] = 'libx265'
-        output_args['opencl_device'] = '0.0'  # 使用第一个GPU设备
         print("使用AMD GPU通过OpenCL进行HEVC编码")
+        output_args = {
+            'vcodec': 'libx265',
+            'crf': 28,
+            'preset': 'medium',
+            'opencl_device': '0.0',  # 使用第一个GPU设备
+            'y': '-y'
+        }
     elif device == "qsv":
         # Intel Quick Sync Video
-        output_args['vcodec'] = 'hevc_qsv'
         print("使用Intel GPU硬件加速进行HEVC编码 (Quick Sync Video)")
+        output_args = {
+            'vcodec': 'hevc_qsv',
+            'crf': 28,
+            'preset': 'medium',
+            'load_plugin': 'hevc_hw',  # 加载HEVC硬件插件
+            'y': '-y'
+        }
     else:
         # CPU编码使用libx265
-        output_args['vcodec'] = 'libx265'
         print("使用CPU进行HEVC编码")
+        output_args = {
+            'vcodec': 'libx265',
+            'crf': 28,
+            'preset': 'medium',
+            'y': '-y'
+        }
 
     # 使用ffmpeg进行转码
     try:
@@ -138,3 +161,4 @@ def process_audio(index, wav, total_count, whisper_model, model_lock):
     except Exception as e:
         print(f"Error processing {wav}: {e}")
         return False
+
