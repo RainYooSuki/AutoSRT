@@ -10,7 +10,7 @@ import zhconv
 # 全局变量
 srtallinput = glob.glob('./SrtFiles/input/*')
 srtwavs = glob.glob('./SrtFiles/input/*.wav')
-SRTwhisper_model_path = 'models/faster-whisper-large-v3-turbo-ct2'
+SRTwhisper_model_path = 'models/your-faster-whisper-model-dir'
 
 
 def device_detect():
@@ -132,5 +132,6 @@ def process_audio(index, wav, total_count, whisper_model, model_lock):
     except Exception as e:
         print(f"Error processing {wav}: {e}")
         return False
+
 
 
