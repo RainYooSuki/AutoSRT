@@ -111,10 +111,7 @@ def process_audio(index, wav, total_count, whisper_model, model_lock):
             segment_start = format_time(segment.start)
             segment_end = format_time(segment.end)
             segment_text = segment.text
-            whisper_message += str(count_id) + "\n"
-            whisper_message += f"{segment_start} --> {segment_end} \n"
-            whisper_message += f"{segment_text} \n"
-            whisper_message += "\n"
+            whisper_message += f"{count_id}\n{segment_start} --> {segment_end}\n{segment_text}\n\n"
 
         # 繁体中文转简体
         if info.language == "zh":
@@ -124,14 +121,14 @@ def process_audio(index, wav, total_count, whisper_model, model_lock):
 
         # 结果文本保存
         print(f"第{index + 1}项音频转录已结束,开始保存转录文本")
-        f = open(subtitle_file, "w", encoding='utf-8')
-        f.write(whisper_message)
-        f.close()
+        with open(subtitle_file, "w", encoding='utf-8') as f:
+            f.write(whisper_message)
         print('srt文件已被保存在： ' + subtitle_file)
         return True
     except Exception as e:
         print(f"Error processing {wav}: {e}")
         return False
+
 
 
 
