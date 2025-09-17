@@ -102,7 +102,7 @@ def process_audio(index, wav, total_count, whisper_model, model_lock):
                                                       chunk_length=30,
                                                       vad_parameters=dict(min_silence_duration_ms=500))
 
-        subtitle_file = f"./SrtFiles/output/{os.path.basename(wav).split('.')[0]}-sub-{info.language}.srt"
+        subtitle_file = f"./SrtFiles/output/{os.path.splitext(os.path.basename(wav))[0]}-sub-{info.language}.srt"
         print(f"识别到第{index + 1}项音频：{wavpath},其语言为 '%s' ,本次识别的准确度为 %f" % (
             info.language, info.language_probability))
         print('开始转录')
@@ -123,7 +123,7 @@ def process_audio(index, wav, total_count, whisper_model, model_lock):
             print('繁简转换完成')
 
         # 结果文本保存
-        print('所有转录已结束,开始保存转录文本')
+        print(f"第{index + 1}项音频转录已结束,开始保存转录文本")
         f = open(subtitle_file, "w", encoding='utf-8')
         f.write(whisper_message)
         f.close()
@@ -132,6 +132,7 @@ def process_audio(index, wav, total_count, whisper_model, model_lock):
     except Exception as e:
         print(f"Error processing {wav}: {e}")
         return False
+
 
 
 
