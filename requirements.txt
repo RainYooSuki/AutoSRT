@@ -11,4 +11,4 @@ faster-whisper>=0.6.0
 zhconv>=1.4.0
 
 # PyTorch (需要CUDA支持)
-torch>=1.10.0+cu113
+torch>=2.2.2+cu118
