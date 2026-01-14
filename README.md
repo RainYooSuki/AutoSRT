@@ -100,7 +100,8 @@ AutoSRT/
 - 模型文件较大，请确保有足够的存储空间
 - 确保模型版本与 faster-whisper 版本兼容
 
-## Web界面
+
+## [Web界面](./WEBUI_README.md)
 
 本项目提供了一个基于Gradio的Web界面，让您可以通过浏览器轻松使用AutoSRT功能：
 
@@ -113,11 +114,7 @@ AutoSRT/
    ```bash
    python webui.py
    ```
-   
-   或者直接运行批处理文件（Windows）：
-   ```bash
-   start_webui.bat
-   ```
+
 
 3. 在浏览器中访问 `http://localhost:7860`
 
