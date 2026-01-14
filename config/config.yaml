@@ -30,7 +30,3 @@ model:
   chunk_length: 30
   vad_filter: true
   min_silence_duration_ms: 500
-
-# Processing configurations
-processing:
-  max_threads: 12
