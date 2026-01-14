@@ -2,3 +2,4 @@ ffmpeg-python>=0.2.0
 faster-whisper>=0.6.0
 zhconv>=1.4.0
 PyYAML>=6.0
+gradio
