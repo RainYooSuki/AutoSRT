@@ -1,0 +1,36 @@
+# AutoSRT Configuration File
+
+# Path configurations
+paths:
+  input_dir: "./inputs"
+  output_dir: "./outputs"
+  model_path: "models/faster-whisper-large-v3-turbo-ct2"
+
+# Audio processing configurations
+audio:
+  supported_extensions:
+    - ".mp3"
+    - ".wav" 
+    - ".m4a"
+    - ".flac"
+    - ".aac"
+    - ".ogg"
+    - ".wma"
+    - ".opus"
+
+# Model configurations
+model:
+  compute_types_gpu:
+    - "bfloat16"
+    - "float16"
+    - "float32"
+  compute_type_cpu: "int8"
+  num_workers: 12
+  beam_size: 5
+  chunk_length: 30
+  vad_filter: true
+  min_silence_duration_ms: 500
+
+# Processing configurations
+processing:
+  max_threads: 12
