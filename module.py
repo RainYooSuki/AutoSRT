@@ -3,14 +3,23 @@
 import glob
 import math
 import os
+import yaml
 import torch
 import ffmpeg as ff
 import zhconv
 
-# 全局变量
-srtallinput = glob.glob('./SrtFiles/input/*')
-srtwavs = glob.glob('./SrtFiles/input/*.wav')
-SRTwhisper_model_path = 'models/your-faster-whisper-model-dir'
+# Load configuration
+with open('./config/config.yaml', 'r', encoding='utf-8') as f:
+    config = yaml.safe_load(f)
+
+# Global variables from config
+SRTwhisper_model_path = config['paths']['model_path']
+INPUT_DIR = config['paths']['input_dir']
+OUTPUT_DIR = config['paths']['output_dir']
+
+# Initialize input files (these will be updated as needed in srt-generation.py)
+srtallinput = glob.glob(f'{INPUT_DIR}/*')
+srtwavs = glob.glob(f'{INPUT_DIR}/*.wav')
 
 
 def device_detect():
@@ -25,56 +34,12 @@ def device_detect():
 
 
 def audio2wav(audio):
-    ff.input(audio).output(f"{os.path.dirname(audio)}/{os.path.splitext(os.path.basename(audio))[0]}.wav", y='-y').run()
-    print(f"已将{os.path.basename(audio)}转换为{os.path.splitext(os.path.basename(audio))[0]}.wav")
-
-
-def video2hevc(video_path, device=None):
-    """
-    将视频文件转码为HEVC编码格式,仅选择支持Nvidia的硬件加速
-
-    参数:
-        video_path (str): 输入视频文件的路径
-        device (str, optional): 指定设备类型，'cuda' or 'cpu'。如未指定则自动检测
-    """
-    # 如果没有指定设备，则自动检测
-    if device is None:
-        device = device_detect()
-
-    # 构造输出文件路径：将原文件扩展名替换为.mp4
-    output_path = f"{os.path.splitext(video_path)[0]}.mp4"
-
-    # 根据设备类型添加硬件加速参数
-    if device == "cuda":
-        # NVIDIA GPU加速编码
-        print("使用NVIDIA GPU硬件加速进行HEVC编码")
-        output_args = {
-            'vcodec': 'hevc_nvenc',
-            'crf': 28,
-            'preset': 'p4',  # NVENC预设，p1-p7，数字越大压缩比越高但速度越慢
-            'rc': 'vbr',  # 可变比特率
-            'b:v': '0',  # 使用CRF而不是固定比特率
-            'cq': 28,  # CQ模式下的质量等级
-            'y': '-y'
-        }
-    else:
-        # CPU编码使用libx265
-        print("使用CPU进行HEVC编码")
-        output_args = {
-            'vcodec': 'libx265',
-            'crf': 28,
-            'preset': 'medium',
-            'y': '-y'
-        }
-
-    # 使用ffmpeg进行转码
     try:
-        ff.input(video_path).output(output_path, **output_args).run()
-        print(f"已将{os.path.basename(video_path)}转换为HEVC编码并保存为{os.path.basename(output_path)}")
-        return True
+        ff.input(audio).output(f"{os.path.dirname(audio)}/{os.path.splitext(os.path.basename(audio))[0]}.wav", y='-y').run()
+        print(f"已将{os.path.basename(audio)}转换为{os.path.splitext(os.path.basename(audio))[0]}.wav")
     except Exception as e:
-        print(f"转码失败: {e}")
-        return False
+        print(f"无法转换音频文件 {os.path.basename(audio)}: {e}")
+        raise e
 
 
 def format_time(seconds):
@@ -98,14 +63,17 @@ def process_audio(index, wav, total_count, whisper_model, model_lock):
 
         # 使用线程锁保护模型访问
         with model_lock:
-            segments, info = whisper_model.transcribe(audio=wav, beam_size=5, vad_filter=True,
-                                                      chunk_length=30,
-                                                      vad_parameters=dict(min_silence_duration_ms=500))
+            segments, info = whisper_model.transcribe(
+                audio=wav, 
+                beam_size=config['model']['beam_size'], 
+                vad_filter=config['model']['vad_filter'],
+                chunk_length=config['model']['chunk_length'],
+                vad_parameters=dict(min_silence_duration_ms=config['model']['min_silence_duration_ms'])
+            )
 
-        subtitle_file = f"./SrtFiles/output/{os.path.splitext(os.path.basename(wav))[0]}-sub-{info.language}.srt"
-        print(f"识别到第{index + 1}项音频：{wavpath},其语言为 '%s' ,本次识别的准确度为 %f" % (
+        subtitle_file = f"{OUTPUT_DIR}/{os.path.splitext(os.path.basename(wav))[0]}-sub-{info.language}.srt"
+        print(f"[第{index + 1}项音频：{os.path.basename(wav)}]:[语言: '%s' ],[识别准确度: %f]" % (
             info.language, info.language_probability))
-        print('开始转录')
         for segment in segments:
             count_id = segment.id
             segment_start = format_time(segment.start)
@@ -120,10 +88,9 @@ def process_audio(index, wav, total_count, whisper_model, model_lock):
             print('繁简转换完成')
 
         # 结果文本保存
-        print(f"第{index + 1}项音频转录已结束,开始保存转录文本")
         with open(subtitle_file, "w", encoding='utf-8') as f:
             f.write(whisper_message)
-        print('srt文件已被保存在： ' + subtitle_file)
+        print(f"第{index + 1}项音频已保存到：{subtitle_file}")
         return True
     except Exception as e:
         print(f"Error processing {wav}: {e}")

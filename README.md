@@ -10,6 +10,7 @@ AutoSRT 是一个基于语音识别的多语种自动化字幕生成工具，可
 - **中文支持**：自动检测并转换繁体中文为简体中文
 - **GPU 加速**：支持 CUDA 加速，大幅提升处理速度
 - **批量处理**：支持多线程并发处理多个音频文件
+- **灵活配置**：通过 YAML 配置文件管理所有参数
 
 ## 技术架构
 
@@ -18,18 +19,20 @@ AutoSRT 是一个基于语音识别的多语种自动化字幕生成工具，可
 - **音频处理**：FFmpeg
 - **AI 框架**：PyTorch (支持 CUDA 11.3+)
 - **中文转换**：zhconv >= 1.4.0
+- **配置管理**：PyYAML
 
 ## 目录结构
 
 ```
 AutoSRT/
+├── config/                 # 配置文件目录
+│   └── config.yaml         # 项目配置文件
+├── inputs/                 # 音频输入文件夹
+├── outputs/                # 字幕输出文件夹
 ├── models/                 # faster-whisper 模型文件
 │   └── your-faster-whisper-model/
 │               └── model.bin
 │               └── ...
-├── SrtFiles/               # 输入输出文件夹
-│   ├── input/              # 音频输入文件夹
-│   └── output/             # 字幕输出文件夹
 ├── module.py               # 核心功能模块
 ├── srt-generation.py       # 主程序入口
 └── requirements.txt        # 项目依赖列表
@@ -48,17 +51,38 @@ AutoSRT/
    ```bash
    pip install -r requirements.txt
    ```
-4. 下载 faster-whisper 模型文件并放置到 [models](./models) 目录
-   例如：[Faster-whisper-large-v3](https://huggingface.co/Systran/faster-whisper-large-v3)
+
+   ```bash
+   # 单独下载torch
+   # CUDA 11.8 as example
+   pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cu118
+
+   ```
+4. （可选）根据需要编辑 [config/config.yaml](./config/config.yaml) 文件以自定义配置
+5. 下载 faster-whisper 模型文件并放置到 [models](./models) 目录
+   例如：
+   [Faster-whisper-large-v3](https://huggingface.co/Systran/faster-whisper-large-v3)
+   [Faster-whisper-large-v3-turbo-ct2](https://huggingface.co/deepdml/faster-whisper-large-v3-turbo-ct2)
+
+## 配置说明
+
+项目的所有配置都集中管理在 [config/config.yaml](./config/config.yaml) 文件中，主要包括以下几个部分：
+
+- **paths**: 定义输入输出目录和模型路径（默认为 [./inputs](./inputs) 和 [./outputs](./outputs)）
+- **audio**: 支持的音频格式扩展名
+- **model**: 模型相关参数，包括GPU/CPU计算类型、工作线程数等
+- **processing**: 处理相关的配置参数
+
+可以根据需要编辑此文件来自定义程序行为。
 
 ## 使用方法
 
-1. 将需要转换的音频文件放入 [SrtFiles/input](./SrtFiles/input) 目录
+1. 将需要转换的音频文件放入 [inputs](./inputs) 目录
 2. 运行主程序：
    ```bash
    python srt-generation.py
    ```
-3. 程序将自动处理所有音频文件并将生成的字幕保存到 [SrtFiles/output](./SrtFiles/output) 目录
+3. 程序将自动处理所有音频文件并将生成的字幕保存到 [outputs](./outputs) 目录
 
 ## 处理流程
 
