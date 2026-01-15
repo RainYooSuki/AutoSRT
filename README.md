@@ -2,7 +2,7 @@
 
 # AutoSRT
 
-[![Version](https://img.shields.io/badge/Version-1.0.0-blue?style=for-the-badge)](https://github.com/RainYooSuki/AutoSRT) [![LICENSE](https://img.shields.io/badge/LICENSE-MIT-yellow?style=for-the-badge)](./LICENSE)
+[![Version](https://img.shields.io/badge/Version-1.1.0-blue?style=for-the-badge)](https://github.com/RainYooSuki/AutoSRT) [![LICENSE](https://img.shields.io/badge/LICENSE-MIT-yellow?style=for-the-badge)](./LICENSE)
 
 ✨AutoSRT 是一个基于语音识别的多语种自动化字幕生成工具✨
 
