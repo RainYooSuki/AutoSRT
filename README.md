@@ -62,7 +62,7 @@ AutoSRT/
 5. 下载 faster-whisper 模型文件并放置到 [models](./models) 目录
    例如：
    [Faster-whisper-large-v3](https://huggingface.co/Systran/faster-whisper-large-v3)
-   [Faster-whisper-large-v3-turbo-ct2](https://huggingface.co/deepdml/faster-whisper-large-v3-turbo-ct2)
+   [Faster-whisper-large-v3-turbo-ct2](https://huggingface.co/dropbox-dash/faster-whisper-large-v3-turbo)
 
 ## 配置说明
 
