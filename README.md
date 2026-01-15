@@ -12,14 +12,6 @@ AutoSRT 是一个基于语音识别的多语种自动化字幕生成工具，可
 - **批量处理**：支持多线程并发处理多个音频文件
 - **灵活配置**：通过 YAML 配置文件管理所有参数
 
-## 技术架构
-
-- **核心语言**：Python 3.8+
-- **语音识别**：faster-whisper >= 0.6.0
-- **音频处理**：FFmpeg
-- **AI 框架**：PyTorch (支持 CUDA 11.3+)
-- **中文转换**：zhconv >= 1.4.0
-- **配置管理**：PyYAML
 
 ## 目录结构
 
@@ -84,39 +76,24 @@ AutoSRT/
    ```
 3. 程序将自动处理所有音频文件并将生成的字幕保存到 [outputs](./outputs) 目录
 
-## 处理流程
-
-1. 程序启动时自动检测可用的计算设备（GPU/CPU）
-2. 自动将非 WAV 格式的音频文件转换为 WAV 格式
-3. 使用 faster-whisper 模型对音频进行语音识别
-4. 自动生成 SRT 格式字幕文件
-5. 对于中文内容，自动进行繁简转换
-6. 将结果保存到输出目录
-
-## 注意事项
-
-- 推荐使用 GPU 运行以获得最佳性能
-- 大型模型对内存要求较高，请确保有足够的系统内存
-- 模型文件较大，请确保有足够的存储空间
-- 确保模型版本与 faster-whisper 版本兼容
-
 
 ## [Web界面](./WEBUI_README.md)
 
 本项目提供了一个基于Gradio的Web界面，让您可以通过浏览器轻松使用AutoSRT功能：
 
-1. 安装依赖：
-   ```bash
-   pip install gradio
-   ```
-
-2. 启动WebUI：
+1. 启动WebUI：
    ```bash
    python webui.py
    ```
 
+2. 在浏览器中访问 `http://127.0.0.1:7860`
 
-3. 在浏览器中访问 `http://127.0.0.1:7860`
+## AutoSRT Realtime Translate推理
+
+1. 启动AutoSRT Realtime Translate推理：
+   ```bash
+   python realtime_translate.py
+   ```
 
 ## 许可证
 

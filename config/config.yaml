@@ -4,6 +4,7 @@
 paths:
   input_dir: "./inputs"
   output_dir: "./outputs"
+  temp_dir: "./tmp"
   model_path: "models/faster-whisper-large-v3-turbo-ct2"
 
 # Audio processing configurations

@@ -89,7 +89,7 @@ if __name__ == '__main__':
     
     # 等待所有音频转换完成后再更新wav音频列表
     if audio_converted:
-        module.srtwavs = module.glob.glob('./SrtFiles/input/*.wav')
+        module.srtwavs = module.glob.glob(f'{module.INPUT_DIR}/*.wav')
     
     # 确保只处理实际的音频文件（wav文件默认认为是有效的音频文件）
     valid_wav_files = []

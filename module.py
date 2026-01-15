@@ -20,6 +20,7 @@ config = load_config()
 SRTwhisper_model_path = config['paths']['model_path']
 INPUT_DIR = config['paths']['input_dir']
 OUTPUT_DIR = config['paths']['output_dir']
+TEMP_DIR = config['paths']['temp_dir']
 
 # Initialize input files (these will be updated as needed in srt-generation.py)
 srtallinput = glob.glob(f'{INPUT_DIR}/*')
@@ -89,26 +90,27 @@ def process_audio(index, wav, total_count, whisper_model, model_lock):
         
         # 使用线程锁保护模型访问
         with model_lock:
-            result = whisper_model.transcribe(
+            segments, info = whisper_model.transcribe(
                 audio=wav, 
                 beam_size=config['model']['beam_size'], 
                 vad_filter=config['model']['vad_filter'],
                 chunk_length=config['model']['chunk_length'],
                 vad_parameters=dict(min_silence_duration_ms=config['model']['min_silence_duration_ms'])
             )
-            segments, info = result['segments'], result['language']
+            language = info.language  # 获取语言信息
+            language_probability = getattr(info, 'language_probability', 'N/A')  # 获取语言识别准确度
 
         # 构建输出文件路径
-        output_filename = f"{os.path.splitext(os.path.basename(wav))[0]}-sub-{info}.srt"
+        output_filename = f"{os.path.splitext(os.path.basename(wav))[0]}-sub-{language}.srt"
         subtitle_file = os.path.join(OUTPUT_DIR, output_filename)
         
-        print(f"[第{index + 1}项音频：{os.path.basename(wav)}]:[语言: '{info}' ],[识别准确度: {result.get('language_probability', 'N/A')}]")
+        print(f"[第{index + 1}项音频：{os.path.basename(wav)}]:[语言: '{language}' ],[识别准确度: {language_probability}]")
         
         # 生成字幕内容
         whisper_message = generate_subtitle_content(segments)
         
         # 如果是中文，进行繁简转换
-        if info == "zh":
+        if language == "zh":
             print('检测到可能的繁体字，将进行繁简转换，结果将保存为简体字')
             whisper_message = zhconv.convert(whisper_message, locale='zh-hans')
             print('繁简转换完成')
