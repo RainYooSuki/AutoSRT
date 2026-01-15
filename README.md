@@ -1,6 +1,13 @@
-# AutoSRT🚀
+<div align="center">
 
-AutoSRT 是一个基于语音识别的多语种自动化字幕生成工具，可将音频内容转换为SRT字幕文件，支持中文繁简转换，提升视频字幕制作效率。
+# AutoSRT
+
+[![Version](https://img.shields.io/badge/Version-1.0.0-blue?style=for-the-badge)](https://github.com/RainYooSuki/AutoSRT) [![LICENSE](https://img.shields.io/badge/LICENSE-MIT-yellow?style=for-the-badge)](./LICENSE)
+✨AutoSRT 是一个基于语音识别的多语种自动化字幕生成工具✨
+
+</div>
+
+
 
 ## 功能特性
 
