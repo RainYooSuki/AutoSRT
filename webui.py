@@ -1,7 +1,7 @@
 import gradio as gr
 import os
 import yaml
-from module import device_detect, audio2wav, process_audio
+from module import device_detect, audio2wav, process_audio,TEMP_DIR
 from faster_whisper import WhisperModel
 import threading
 import time
@@ -26,6 +26,7 @@ def load_config():
             'paths': {
                 'input_dir': './inputs',
                 'output_dir': './outputs',
+                'temp_dir': './tmp',
                 'model_path': 'models/faster-whisper-large-v3-turbo-ct2'
             },
             'model': {
@@ -66,7 +67,7 @@ def transcribe_audio_single(input_audio_path, output_dir, progress=gr.Progress(t
     os.makedirs(output_dir, exist_ok=True)
     
     # 确保临时目录存在
-    tmp_dir = "./tmp"
+    tmp_dir = TEMP_DIR
     os.makedirs(tmp_dir, exist_ok=True)
     
     # 检查输入文件是否存在
@@ -83,12 +84,17 @@ def transcribe_audio_single(input_audio_path, output_dir, progress=gr.Progress(t
         temp_wav_path = None
         if ext.lower() != '.wav':
             # 创建临时WAV文件
-            temp_wav_path = os.path.join("./tmp", 
+            temp_wav_path = os.path.join(tmp_dir, 
                                          f"{os.path.splitext(os.path.basename(input_audio_path))[0]}_{int(time.time())}.wav")
             ff.input(input_audio_path).output(temp_wav_path, y='-y').run()
             audio_for_processing = temp_wav_path
         else:
-            audio_for_processing = input_audio_path
+            # 将上传的WAV文件复制到临时目录以确保一致的管理
+            original_filename = os.path.basename(input_audio_path)
+            filename, file_ext = os.path.splitext(original_filename)
+            timestamped_filename = f"{filename}_{int(time.time())}{file_ext}"
+            audio_for_processing = os.path.join(tmp_dir, timestamped_filename)
+            shutil.copy2(input_audio_path, audio_for_processing)
         
         # 检测设备
         device = device_detect()
@@ -175,6 +181,9 @@ def transcribe_audio_single(input_audio_path, output_dir, progress=gr.Progress(t
         # 清理临时文件
         if temp_wav_path and os.path.exists(temp_wav_path):
             os.remove(temp_wav_path)
+        # 如果音频文件是从上传文件复制的，也要清理
+        if audio_for_processing != input_audio_path and os.path.exists(audio_for_processing):
+            os.remove(audio_for_processing)
         
         success_msg = f"✓ {os.path.basename(input_audio_path)}: 处理成功，已保存到 {subtitle_file}"
         
@@ -184,6 +193,9 @@ def transcribe_audio_single(input_audio_path, output_dir, progress=gr.Progress(t
         # 清理临时文件
         if 'temp_wav_path' in locals() and temp_wav_path and os.path.exists(temp_wav_path):
             os.remove(temp_wav_path)
+        # 如果音频文件是从上传文件复制的，也要清理
+        if 'audio_for_processing' in locals() and audio_for_processing != input_audio_path and os.path.exists(audio_for_processing):
+            os.remove(audio_for_processing)
         error_msg = f"✗ {os.path.basename(input_audio_path)}: 处理出错 - {str(e)}"
         return error_msg, output_dir
 
