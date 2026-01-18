@@ -24,6 +24,7 @@ model:
   compute_types_gpu:
     - "bfloat16"
     - "float16"
+    - "int8"
     - "float32"
   compute_type_cpu: "int8"
   num_workers: 12

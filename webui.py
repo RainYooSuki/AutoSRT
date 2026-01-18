@@ -304,7 +304,7 @@ def create_gradio_interface():
 if __name__ == "__main__":
     interface = create_gradio_interface()
     interface.launch(
-        share=True,  # 生成公共链接
+        share=False,  # 生成公共链接
         server_name="0.0.0.0",  # 允许外部访问
         server_port=7860,  # 端口
         inbrowser=True,  # 自动打开浏览器
