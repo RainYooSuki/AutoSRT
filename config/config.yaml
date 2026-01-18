@@ -32,3 +32,5 @@ model:
   chunk_length: 30
   vad_filter: true
   min_silence_duration_ms: 500
+  max_instances: 4  # 最大并发模型实例数量
+  device: "cuda"    # 设备类型，可选 "cuda" 或 "cpu"
