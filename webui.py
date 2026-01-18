@@ -234,9 +234,9 @@ def create_gradio_interface():
     config = load_config()
     
     with gr.Blocks(
-        title="AutoSRT - 自动字幕生成工具"
+        title="AutoSRT - WebUI"
     ) as demo:
-        gr.Markdown("# AutoSRT - 自动字幕生成工具")
+        gr.Markdown("# AutoSRT - WebUI")
         gr.Markdown("将音频文件转换为SRT格式的字幕文件")
         
         with gr.Row():

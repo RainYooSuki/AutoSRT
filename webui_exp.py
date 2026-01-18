@@ -117,10 +117,10 @@ def create_gradio_interface():
     config = load_config()
     
     with gr.Blocks(
-        title="AutoSRT - 实验性多GPU字幕生成工具"
+        title="AutoSRT - WebUI - EXP"
     ) as demo:
-        gr.Markdown("# AutoSRT - 实验性多GPU字幕生成工具")
-        gr.Markdown("使用多GPU、多实例技术加速音频转字幕处理")
+        gr.Markdown("# AutoSRT - WebUI - EXP")
+        gr.Markdown("将音频文件转换为SRT格式的字幕文件")
         
         with gr.Row():
             with gr.Column(scale=2):
